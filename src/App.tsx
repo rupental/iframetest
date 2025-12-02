@@ -9,8 +9,8 @@ function App() {
   
   // Symulowane dane użytkownika Gamivo (dla testów)
   const GAMIVO_USER = {
-    email: 'test@gamivo.com',        // ← Email użytkownika do testów
-    token: 'gamivo-mock-token-123',  // ← Token/hasło (musi być hasłem użytkownika w ModelPass)
+    email: 'rupental@red-sky.pl',        // ← Email użytkownika do testów
+    token: 'adidas',  // ← Token/hasło (musi być hasłem użytkownika w ModelPass)
     userId: 'gamivo-user-42'         // ← ID użytkownika (opcjonalnie)
   };
   
