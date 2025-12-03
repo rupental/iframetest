@@ -1,16 +1,576 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>One-Page Iframe Test Site</title>
-    <meta property="og:image" content="https://bolt.new/static/og_default.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamivo JWT SSO - Test Integration</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    
+    .controls {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .controls h3 {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .user-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group label {
+      font-size: 12px;
+      margin-bottom: 5px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .form-group select option {
+      background: #667eea;
+      color: #fff;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background: #f97316;
+      border-color: #f97316;
+    }
+    
+    .btn-primary:hover {
+      background: #ea580c;
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .iframe-wrapper {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    iframe {
+      width: 100%;
+      max-width: 1200px;
+      height: 80vh;
+      max-height: 800px;
+      border: 0;
+      border-radius: 12px;
+      background: #fff;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 4px solid #10b981;
+    }
+    
+    .status.error {
+      border-left-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .status.info {
+      border-left-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .status.warning {
+      border-left-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+    }
+    
+    .log {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+    
+    .log-time {
+      color: rgba(255, 255, 255, 0.5);
+      margin-right: 8px;
+    }
+    
+    .jwt-display {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.3);
+      font-family: 'Courier New', monospace;
+      word-break: break-all;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    .jwt-display.hidden {
+      display: none;
+    }
+
+    .config-section {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .config-section h4 {
+      margin-bottom: 10px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .config-section code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
 </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎮 Gamivo JWT SSO - Test Integration</h1>
+      <p>Symulacja Gamivo z generowaniem JWT tokenów. Wygeneruj JWT i wyślij do ModelPass przez postMessage.</p>
+    </div>
+    
+    <div class="controls">
+      <div class="config-section">
+        <h4>⚙️ Konfiguracja</h4>
+        <p style="font-size: 12px; opacity: 0.8;">
+          <strong>ModelPass URL:</strong> <code id="modelpassUrlDisplay">Ładowanie...</code><br>
+          <strong>JWT API URL:</strong> <code id="jwtApiUrlDisplay">Ładowanie...</code>
+        </p>
+      </div>
+
+      <h3>Konfiguracja użytkownika Gamivo</h3>
+      <div class="user-form">
+        <div class="form-group">
+          <label>Email użytkownika</label>
+          <input type="email" id="userEmail" placeholder="user@gamivo.com" value="test@gamivo.com">
+        </div>
+        <div class="form-group">
+          <label>User ID (sub)</label>
+          <input type="text" id="userId" placeholder="gamivo-user-123" value="">
+        </div>
+        <div class="form-group">
+          <label>Tier (plan)</label>
+          <select id="userTier">
+            <option value="free">Free (10,000 kredytów)</option>
+            <option value="premium" selected>Premium (200,000 kredytów)</option>
+            <option value="enterprise">Enterprise (1,000,000 kredytów)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Custom Kredyty (opcjonalnie)</label>
+          <input type="number" id="customCredits" placeholder="Puste = domyślne dla tier">
+        </div>
+      </div>
+      
+      <div class="buttons">
+        <button class="btn btn-primary" onclick="generateAndSendJWT()" id="sendBtn">
+          🔐 Wygeneruj JWT i Wyślij
+        </button>
+        <button class="btn" onclick="generateJWTOnly()">
+          🔑 Tylko Wygeneruj JWT
+        </button>
+        <button class="btn" onclick="clearLog()">
+          🗑️ Wyczyść log
+        </button>
+      </div>
+      
+      <div id="status" class="status info" style="display: none;"></div>
+      
+      <div id="jwtDisplay" class="jwt-display hidden"></div>
+      
+      <div id="log" class="log" style="display: none;">
+        <div class="log-entry"><span class="log-time">[00:00:00]</span> Log zdarzeń...</div>
+      </div>
+    </div>
+    
+    <div class="iframe-wrapper">
+      <iframe 
+        id="modelpass-iframe" 
+        allow="clipboard-read; clipboard-write">
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // KONFIGURACJA - DOSTOSUJ DO SWOICH POTRZEB
+    // ============================================
+    
+    // URL ModelPass (produkcja)
+    const MODELPASS_URL = 'https://model-chi-two.vercel.app/';
+    
+    // URL do API generującego JWT
+    // Opcja 1: Użyj testowego serwera lokalnie (node scripts/test-jwt-server.js)
+    // const JWT_API_URL = 'http://localhost:3000/api/generate-jwt';
+    
+    // Opcja 2: Stwórz endpoint na swojej stronie testowej (Vercel Serverless Function)
+    // const JWT_API_URL = 'https://iframetest-sage.vercel.app/api/generate-jwt';
+    
+    // Opcja 3: Użyj skryptu Node.js lokalnie i wklej token ręcznie
+    const JWT_API_URL = null; // ← Ustaw na null jeśli używasz skryptu Node.js
+    
+    // ============================================
+    // KOD - NIE ZMIENIAJ PONIŻEJ
+    // ============================================
+    
+    const iframe = document.getElementById('modelpass-iframe');
+    const statusDiv = document.getElementById('status');
+    const logDiv = document.getElementById('log');
+    const jwtDisplayDiv = document.getElementById('jwtDisplay');
+    const sendBtn = document.getElementById('sendBtn');
+    const modelpassUrlDisplay = document.getElementById('modelpassUrlDisplay');
+    const jwtApiUrlDisplay = document.getElementById('jwtApiUrlDisplay');
+    
+    // Wyświetl konfigurację
+    modelpassUrlDisplay.textContent = MODELPASS_URL;
+    jwtApiUrlDisplay.textContent = JWT_API_URL || 'Skrypt Node.js (lokalnie)';
+    
+    // Ustaw URL iframe
+    iframe.src = MODELPASS_URL;
+    
+    // Logowanie zdarzeń
+    function log(message, type = 'info') {
+      const time = new Date().toLocaleTimeString('pl-PL');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">[${time}]</span> <strong>${type.toUpperCase()}:</strong> ${message}`;
+      logDiv.insertBefore(entry, logDiv.firstChild);
+      logDiv.style.display = 'block';
+      
+      // Ogranicz do 20 wpisów
+      while (logDiv.children.length > 20) {
+        logDiv.removeChild(logDiv.lastChild);
+      }
+    }
+    
+    function showStatus(message, type = 'info') {
+      statusDiv.textContent = message;
+      statusDiv.className = `status ${type}`;
+      statusDiv.style.display = 'block';
+      log(message, type);
+    }
+    
+    function clearLog() {
+      logDiv.innerHTML = '';
+      logDiv.style.display = 'none';
+      statusDiv.style.display = 'none';
+      jwtDisplayDiv.classList.add('hidden');
+    }
+    
+    // Pobierz dane z formularza
+    function getUserData() {
+      const email = document.getElementById('userEmail').value || 'test@gamivo.com';
+      const userId = document.getElementById('userId').value || `gamivo-user-${Date.now()}`;
+      const tier = document.getElementById('userTier').value || 'free';
+      const customCredits = document.getElementById('customCredits').value;
+      
+      return {
+        email,
+        userId,
+        tier,
+        creditsLimit: customCredits ? parseInt(customCredits) : null
+      };
+    }
+    
+    // Wygeneruj JWT przez API (jeśli dostępne)
+    async function generateJWTViaAPI(userData) {
+      if (!JWT_API_URL) {
+        return null;
+      }
+
+      try {
+        const response = await fetch(JWT_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const { token, payload } = await response.json();
+        return { token, payload };
+      } catch (error) {
+        log(`Błąd API: ${error.message}`, 'error');
+        return null;
+      }
+    }
+    
+    // Wygeneruj JWT
+    async function generateJWT(userData) {
+      // Próba użycia API
+      const apiResult = await generateJWTViaAPI(userData);
+      if (apiResult) {
+        return apiResult;
+      }
+      
+      // Jeśli API nie działa, pokaż instrukcję
+      showStatus('⚠️ API nie działa. Użyj skryptu Node.js do wygenerowania JWT.', 'warning');
+      log('INSTRUKCJA: Uruchom: node scripts/generate-test-jwt-advanced.js --email ' + userData.email + ' --tier ' + userData.tier, 'info');
+      log('Następnie skopiuj wygenerowany token i użyj przycisku "Tylko Wygeneruj JWT"', 'info');
+      
+      return null;
+    }
+    
+    // Wygeneruj i wyślij JWT
+    async function generateAndSendJWT() {
+      sendBtn.disabled = true;
+      sendBtn.textContent = '⏳ Generowanie...';
+      
+      try {
+        const userData = getUserData();
+        log(`Generowanie JWT dla: ${userData.email} (${userData.tier})`, 'info');
+        
+        const result = await generateJWT(userData);
+        
+        if (!result || !result.token) {
+          showStatus('❌ Nie udało się wygenerować JWT. Użyj skryptu Node.js.', 'error');
+          sendBtn.disabled = false;
+          sendBtn.textContent = '🔐 Wygeneruj JWT i Wyślij';
+          return;
+        }
+        
+        // Pokaż JWT
+        jwtDisplayDiv.textContent = `JWT Token: ${result.token}`;
+        jwtDisplayDiv.classList.remove('hidden');
+        log(`JWT wygenerowany (${result.token.length} znaków)`, 'success');
+        log(`Payload: ${JSON.stringify(result.payload, null, 2)}`, 'info');
+        
+        // Wyślij do iframe
+        sendJWTToIframe(result.token);
+        
+      } catch (error) {
+        showStatus(`❌ Błąd: ${error.message}`, 'error');
+        log(`Błąd: ${error.message}`, 'error');
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '🔐 Wygeneruj JWT i Wyślij';
+      }
+    }
+    
+    // Tylko wygeneruj JWT (bez wysyłania) - dla ręcznego wklejania tokenu
+    async function generateJWTOnly() {
+      try {
+        const userData = getUserData();
+        const result = await generateJWT(userData);
+        
+        if (!result || !result.token) {
+          showStatus('❌ Nie udało się wygenerować JWT. Użyj skryptu Node.js.', 'error');
+          return;
+        }
+        
+        jwtDisplayDiv.textContent = `JWT Token: ${result.token}\n\nPayload:\n${JSON.stringify(result.payload, null, 2)}`;
+        jwtDisplayDiv.classList.remove('hidden');
+        showStatus('✅ JWT wygenerowany! Skopiuj token i użyj w kodzie.', 'info');
+        log(`JWT wygenerowany (${result.token.length} znaków)`, 'success');
+        
+        // Możliwość ręcznego wysłania
+        const manualSend = confirm('Czy chcesz wysłać ten token do iframe?');
+        if (manualSend) {
+          sendJWTToIframe(result.token);
+        }
+        
+      } catch (error) {
+        showStatus(`❌ Błąd: ${error.message}`, 'error');
+      }
+    }
+    
+    // Funkcja do ręcznego wysłania tokenu (jeśli masz token z skryptu)
+    window.sendJWTManually = function(token) {
+      if (!token) {
+        const tokenInput = prompt('Wklej JWT token:');
+        if (tokenInput) {
+          sendJWTToIframe(tokenInput);
+        }
+      } else {
+        sendJWTToIframe(token);
+      }
+    };
+    
+    // Wyślij JWT do iframe
+    function sendJWTToIframe(token) {
+      if (!iframe.contentWindow) {
+        showStatus('❌ Iframe nie jest gotowy. Poczekaj chwilę i spróbuj ponownie.', 'error');
+        return;
+      }
+      
+      // Wyślij JWT przez postMessage
+      iframe.contentWindow.postMessage({
+        type: 'gamivo-jwt',
+        token: token
+      }, '*');
+      
+      showStatus(`📤 Wysłano JWT do ModelPass`, 'info');
+      log(`Wysłano JWT do iframe (${token.length} znaków)`, 'success');
+    }
+    
+    // Nasłuchuj wiadomości od iframe
+    window.addEventListener('message', (event) => {
+      // W produkcji sprawdź event.origin!
+      // if (event.origin !== MODELPASS_URL) return;
+      
+      log(`Otrzymano wiadomość od iframe: ${JSON.stringify(event.data)}`, 'info');
+      
+      if (event.data && typeof event.data === 'object') {
+        switch (event.data.type) {
+          case 'auth-success':
+            showStatus(`✅ Użytkownik zalogowany! User ID: ${event.data.userId}`, 'info');
+            log(`Autentykacja zakończona sukcesem. User ID: ${event.data.userId}`, 'success');
+            break;
+            
+          case 'auth-error':
+            showStatus(`❌ Błąd autentykacji: ${event.data.message}`, 'error');
+            log(`Błąd autentykacji: ${event.data.message}`, 'error');
+            break;
+            
+          case 'auth-logout':
+            showStatus('👋 Użytkownik wylogowany', 'info');
+            log('Użytkownik wylogował się z aplikacji', 'info');
+            break;
+        }
+      }
+    });
+    
+    // Inicjalizacja
+    log('Strona Gamivo JWT SSO (test) załadowana', 'info');
+    log(`ModelPass URL: ${MODELPASS_URL}`, 'info');
+    log(`JWT API URL: ${JWT_API_URL || 'Skrypt Node.js (lokalnie)'}`, 'info');
+    showStatus('✅ Gotowe! Wygeneruj JWT i wyślij do ModelPass.', 'info');
+    
+    // Auto-generuj User ID jeśli pusty
+    document.getElementById('userId').addEventListener('focus', function() {
+      if (!this.value) {
+        this.value = `gamivo-user-${Date.now()}`;
+      }
+    });
+  </script>
+</body>
 </html>
